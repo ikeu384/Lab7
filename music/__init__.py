@@ -210,23 +210,61 @@ def get_reviews_with_track_and_user() -> List:
 
 
 def get_track_count_by_artist() -> List:
-    """ TODO (Task 2) Total number of tracks by each artist. """
+    query = '''
+        SELECT ARTISTS.NAME, COUNT(TRACKS.ID)
+        FROM ARTISTS
+        LEFT JOIN TRACKS ON ARTISTS.ID = TRACKS.ARTIST_ID
+        GROUP BY ARTISTS.ID, ARTISTS.NAME
+    '''
+    return execute_query_get_all(query)
 
 
 def get_track_count_by_genre() -> List:
-    """ TODO (Task 2) Total number of tracks in each genre."""
+    query = '''
+        SELECT GENRES.NAME, COUNT(TRACK_GENRE_ASSOC.TRACK_ID)
+        FROM GENRES
+        LEFT JOIN TRACK_GENRE_ASSOC
+            ON GENRES.ID = TRACK_GENRE_ASSOC.GENRE_ID
+        GROUP BY GENRES.ID, GENRES.NAME
+    '''
+    return execute_query_get_all(query)
 
 
 def get_review_count_by_user() -> List:
-    """ TODO (Task 2) Total number of reviews written by each user. """
+    query = '''
+        SELECT USERS.NAME, COUNT(REVIEWS.USER_ID)
+        FROM USERS
+        LEFT JOIN REVIEWS
+            ON USERS.ID = REVIEWS.USER_ID
+        GROUP BY USERS.ID, USERS.NAME
+    '''
+    return execute_query_get_all(query)
 
 
-def get_average_ratings() -> List:
-    """ TODO (Task 2) Get average ratings for all tracks that have reviews."""
+def get_average_rating_by_track() -> List:
+    query = '''
+        SELECT TRACKS.TITLE, AVG(REVIEWS.RATING)
+        FROM TRACKS
+        LEFT JOIN REVIEWS
+            ON TRACKS.ID = REVIEWS.TRACK_ID
+        GROUP BY TRACKS.ID, TRACKS.TITLE
+    '''
+    return execute_query_get_all(query)
 
 
-def get_most_common_genres() -> List:
-    """ TODO (Task 2) List the most common genres."""
+
+def get_top_genres() -> List:
+    query = '''
+        SELECT GENRES.NAME, COUNT(TRACK_GENRE_ASSOC.TRACK_ID) AS TRACK_COUNT
+        FROM GENRES
+        INNER JOIN TRACK_GENRE_ASSOC
+            ON GENRES.ID = TRACK_GENRE_ASSOC.GENRE_ID
+        GROUP BY GENRES.ID, GENRES.NAME
+        ORDER BY TRACK_COUNT DESC
+        LIMIT 3
+    '''
+    return execute_query_get_all(query)
+
 
 
 # Imported after execute_query helpers so user_reviews can reuse them
@@ -298,12 +336,27 @@ def run_queries():
     print(*reviews, sep='\n')
 
     #  TODO (Task 2) Show the total number of tracks by each artist by calling get_track_count_by_artist()
+    track_counts = get_track_count_by_artist()
+    print("\nTotal number of tracks by each artist:")
+    print(*track_counts, sep='\n')
 
     #  TODO (Task 2) Show the total number of tracks in each genre by calling get_track_count_by_genre()
+    track_counts_by_genre = get_track_count_by_genre()
+    print("\nTotal number of tracks in each genre:")
+    print(*track_counts_by_genre, sep='\n')
 
     #  TODO (Task 2) Show the total number of reviews written by each user by calling get_review_count_by_user()
+    review_counts = get_review_count_by_user()
+    print("\nTotal number of reviews written by each user:")
+    print(*review_counts, sep='\n')
 
     #  TODO (Task 2) Show average ratings for tracks by calling get_average_ratings()
+    average_ratings = get_average_rating_by_track()
+    print("\nAverage rating for each track:")
+    print(*average_ratings, sep='\n')
 
     #  TODO (Task 2) Show the most common genres by calling get_most_common_genres()
+    top_genres = get_top_genres()
+    print("\nTop 3 most common genres:")
+    print(*top_genres, sep='\n')
 
